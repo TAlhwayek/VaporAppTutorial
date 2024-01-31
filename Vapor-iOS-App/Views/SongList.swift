@@ -10,6 +10,7 @@ import SwiftUI
 struct SongList: View {
     
     @StateObject var viewModel = SongListViewModel()
+    @State var modal: ModalType? = nil
     
     var body: some View {
         NavigationStack {
@@ -27,10 +28,26 @@ struct SongList: View {
             .navigationTitle(Text("🎶 Songs"))
             .toolbar {
                 Button {
-                    
+                    modal = .add
                 } label: {
                     Label("Add Song", systemImage: "plus.circle")
                 }
+            }
+        }
+        .sheet(item: $modal, onDismiss: {
+            Task {
+                do {
+                    try await viewModel.fetchSongs()
+                } catch {
+                    print("ERROR: \(error)")
+                }
+            }
+        }) { modal in
+            switch modal {
+            case .add:
+                AddUpdateSong(viewModel: AddUpdateSongViewModel())
+            case .update(let song):
+                AddUpdateSong(viewModel: AddUpdateSongViewModel(currentSong: song))
             }
         }
         .onAppear {
