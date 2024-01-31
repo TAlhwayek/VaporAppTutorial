@@ -25,6 +25,22 @@ struct SongList: View {
                 }
             }
             .navigationTitle(Text("🎶 Songs"))
+            .toolbar {
+                Button {
+                    
+                } label: {
+                    Label("Add Song", systemImage: "plus.circle")
+                }
+            }
+        }
+        .onAppear {
+            Task {
+                do {
+                    try await viewModel.fetchSongs()
+                } catch {
+                    print("Error: \(error)")
+                }
+            }
         }
     }
 }
